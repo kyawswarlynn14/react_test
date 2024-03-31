@@ -16,9 +16,11 @@ function Chat() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   let limit = 25;
   const [messageCount, setMessageCount] = useState(limit);
   const [visibleMessages, setVisibleMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!userInfo?.id) {
@@ -34,12 +36,22 @@ function Chat() {
     }
   }, [messages, messageCount]);
 
-  // Scroll to the bottom whenever visibleMessages changes
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
     }
   }, [visibleMessages]);
+
+  const handleScroll = () => {
+    const element = chatContainerRef.current;
+    if (element.scrollTop === 0 && !isLoading) {
+      setIsLoading(true);
+      setTimeout(() => {
+        setMessageCount(prev => prev + limit);
+        setIsLoading(false);
+      }, 1000);
+    }
+  };
 
   const handleMessageChange = (event) => {
     setMessage(event.target.value);
@@ -54,33 +66,37 @@ function Chat() {
 
   return (
     <div className='h-screen w-full relative'>
-      <div className='w-full absolute top-0 bg-purple-600 p-1 flex items-center justify-between'>
-        <button className='bg-white font-semibold rounded-full px-4 text-sm' onClick={() => navigate('/rooms')}>back</button>
+      <div className='w-full absolute top-0 bg-purple-600 p-1 flex items-center justify-center'>
+        <button className='bg-white absolute left-2 font-semibold rounded-full px-4 text-sm' onClick={() => navigate('/rooms')}>back</button>
 
         <h1 className='text-lg text-white font-bold'>{otherUsername}</h1>
-
-        <button className='bg-white font-semibold rounded-full px-4 text-sm' onClick={() => setMessageCount(prev => prev + limit)}>
-          more
-        </button>
       </div>
       <div
-        className='flex flex-col gap-1 w-full h-[88vh] overflow-y-auto bg-slate-50 p-2 pt-10'
+        ref={chatContainerRef} onScroll={handleScroll}
+        className='w-full h-[88vh] overflow-y-scroll bg-slate-50 p-2 pt-10'
       >
-        {visibleMessages?.length > 0 && visibleMessages.map((i, index) => {
-          let user = users?.length && users.find(j => j.id === i?.userId);
-          let userShortName = user?.name && user?.name.substring(0, 2).toUpperCase();
-          let isMe = user?.id === userInfo?.id;
-          return (
-            <div key={i?.message + index} className={`w-full flex ${isMe && 'justify-end'}`}>
-              <div className={`w-fit flex items-center gap-1 ${isMe && 'flex-row-reverse'}`}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isMe ? 'bg-slate-300' : 'bg-purple-600 text-white'}`}>{userShortName}</div>
-                <div className={`p-2 ${isMe ? 'bg-slate-300 rounded-tl-lg rounded-br-lg' : 'bg-purple-600 text-white rounded-tr-lg rounded-bl-lg'}`}>
-                  <p>{i?.message}</p>
+        {isLoading && (
+          <div className="absolute top-12 z-50 left-0 w-full h-fit flex items-center justify-center">
+            <p className="text-black">Loading...</p>
+          </div>
+        )}
+        <div className='w-full h-[90vh] flex flex-col gap-1'>
+          {visibleMessages?.length > 0 && visibleMessages.map((i, index) => {
+            let user = users?.length && users.find(j => j.id === i?.userId);
+            let userShortName = user?.name && user?.name.substring(0, 2).toUpperCase();
+            let isMe = user?.id === userInfo?.id;
+            return (
+              <div key={i?.message + index} className={`w-full flex ${isMe && 'justify-end'}`}>
+                <div className={`w-fit flex items-center gap-1 ${isMe && 'flex-row-reverse'}`}>
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isMe ? 'bg-slate-300' : 'bg-purple-600 text-white'}`}>{userShortName}</div>
+                  <div className={`p-2 ${isMe ? 'bg-slate-300 rounded-tl-lg rounded-br-lg' : 'bg-purple-600 text-white rounded-tr-lg rounded-bl-lg'}`}>
+                    <p>{i?.message}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
         <div ref={messagesEndRef} />
       </div>
 

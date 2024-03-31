@@ -55,6 +55,7 @@ const Rooms = () => {
     localStorage.setItem('rooms', JSON.stringify(filterRooms))
     localStorage.setItem('users', JSON.stringify(filterUsers))
     dispatch(clearUserInfo())
+    window.location.reload();
   }
 
   return (

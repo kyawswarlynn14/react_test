@@ -57,7 +57,8 @@ function Chat() {
     setMessage(event.target.value);
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = (e) => {
+    e.preventDefault();
     if (message.trim() !== '') {
       dispatch(sendMessage({ roomId: currentRoomId, userId: userInfo?.id, message }));
       setMessage('');
@@ -73,14 +74,14 @@ function Chat() {
       </div>
       <div
         ref={chatContainerRef} onScroll={handleScroll}
-        className='w-full h-[88vh] overflow-y-scroll bg-slate-50 p-2 pt-10'
+        className='w-full h-[90vh] overflow-y-scroll bg-slate-50 p-2 pt-10'
       >
         {isLoading && (
           <div className="absolute top-12 z-50 left-0 w-full h-fit flex items-center justify-center">
             <p className="text-black">Loading...</p>
           </div>
         )}
-        <div className='w-full h-[90vh] flex flex-col gap-1'>
+        <div className='w-full h-[90.2vh] flex flex-col gap-1'>
           {visibleMessages?.length > 0 && visibleMessages.map((i, index) => {
             let user = users?.length && users.find(j => j.id === i?.userId);
             let userShortName = user?.name && user?.name.substring(0, 2).toUpperCase();
@@ -100,9 +101,8 @@ function Chat() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={(e) => e.preventDefault()} className='w-full h-[12vh] bg-purple-600 flex items-center justify-between px-2 gap-2'>
-        <textarea
-          rows={2}
+      <form onSubmit={handleSendMessage} className='w-full h-[10vh] bg-purple-600 flex items-center justify-between px-2 gap-2'>
+        <input
           type="text" 
           id="message" 
           value={message} 
@@ -110,7 +110,7 @@ function Chat() {
           placeholder="Your message"
           className='p-2 rounded-lg flex-1 outline-none'
         />
-        <button className='w-fit bg-white py-2 px-4 font-semibold rounded-lg' onClick={handleSendMessage}>send</button>
+        <button type='submit' className='w-fit bg-white py-2 px-4 font-semibold rounded-lg'>send</button>
       </form>
     </div>
   );

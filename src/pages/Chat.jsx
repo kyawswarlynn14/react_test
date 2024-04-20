@@ -81,7 +81,7 @@ function Chat() {
             <p className="text-black">Loading...</p>
           </div>
         )}
-        <div className='w-full h-[90.2vh] flex flex-col gap-1'>
+        <div className='w-full h-[90.1vh] flex flex-col gap-1 pt-12'>
           {visibleMessages?.length > 0 && visibleMessages.map((i, index) => {
             let user = users?.length && users.find(j => j.id === i?.userId);
             let userShortName = user?.name && user?.name.substring(0, 2).toUpperCase();
